@@ -1,4 +1,6 @@
 # Imports
+from pathlib import Path
+
 import settings
 import numpy as np
 import _pickle as pickle
@@ -8,15 +10,13 @@ import pretty_midi as pm
 import mido
 
 
-def shift_midi(shift, name, tempo_path, target_path):
-    midi = pm.PrettyMIDI(tempo_path + name)
-
+def shift_midi(shift: int, song_name: str, source_path: Path, target_path: Path):
+    midi = pm.PrettyMIDI(str(source_path.joinpath(song_name)))
     for instrument in midi.instruments:
         if not instrument.is_drum:
             for note in instrument.notes:
                 note.pitch -= shift
-
-    midi.write(target_path + name)
+    midi.write(str(target_path.joinpath(song_name)))
 
 
 def chords_to_index(chords, chord_to_index):
@@ -29,10 +29,10 @@ def chords_to_index(chords, chord_to_index):
     return chords_index
 
 
-def chords_to_index_save(name, chords_folder, chords_index_folder, chord_to_index):
-    chords = pickle.load(open(chords_folder + name, 'rb'))
+def chords_to_index_save(chords_file: Path, chords_index_folder: Path, chord_to_index: dict) -> None:
+    chords = pickle.load(open(chords_file, 'rb'))
     chords_index = chords_to_index(chords, chord_to_index)
-    pickle.dump(chords_index, open(chords_index_folder + name, 'wb'))
+    pickle.dump(chords_index, open(chords_index_folder.joinpath(chords_file.name), 'wb'))
 
 
 def histo_to_key(histo, key_n):
@@ -80,25 +80,22 @@ def pianoroll_to_note_index(pianoroll):
     return note_ind
 
 
-def load_histo_save_song_histo(name, histo_path, song_histo_path):
-    histo = pickle.load(open(histo_path + name, 'rb'))
+def load_histo_save_song_histo(histogram_file: Path, song_histogram_path: Path):
+    histo = pickle.load(open(histogram_file, 'rb'))
     song_histo = np.sum(histo, axis=1)
-    pickle.dump(song_histo, open(song_histo_path + name, 'wb'))
+    pickle.dump(song_histo, open(song_histogram_path.joinpath(histogram_file.name), 'wb'))
 
 
-def load_histo_save_chords(chord_n, name, histo_path, chords_path):
-    histo = pickle.load(open(histo_path + name, 'rb'))
+def load_histo_save_chords(chord_n: int, histo_file: Path, chords_path: Path) -> None:
+    histo = pickle.load(open(histo_file, 'rb'))
     chords = histo_to_chords(histo, chord_n)
-    pickle.dump(chords, open(chords_path + name, 'wb'))
+    pickle.dump(chords, open(chords_path.joinpath(histo_file.name), 'wb'))
 
 
-def pianoroll_to_histo_bar(pianoroll, samples_per_bar):
+def pianoroll_to_histogram_per_bar(pianoroll: np.ndarray, samples_per_bar: int) -> np.ndarray:
     # Make histogramm for every samples_per_bar samples
     histo_bar = np.zeros((pianoroll.shape[0], int(pianoroll.shape[1] / samples_per_bar)))
     for i in range(0, pianoroll.shape[1] - samples_per_bar + 1, samples_per_bar):
-        #    print(i/samples_per_bar)
-        #    print('i: ',i)
-        #    print(i+samples_per_bar)
         histo_bar[:, int(i / samples_per_bar)] = np.sum(pianoroll[:, i:i + samples_per_bar], axis=1)
     return histo_bar
 
@@ -114,11 +111,9 @@ def pianoroll_to_histo_song(pianoroll, samples_per_bar):
     return histo_bar
 
 
-def histo_bar_to_histo_oct(histo_bar, octave):
+def squash_octaves(histo_bar: np.ndarray, octave: int):
     histo_oct = np.zeros((octave, histo_bar.shape[1]))
     for i in range(0, histo_bar.shape[0] - octave + 1, octave):
-        #        print('i: ',i)
-        #        print(i+octave)
         histo_oct = np.add(histo_oct, histo_bar[i:i + octave])
     return histo_oct
 
@@ -126,17 +121,16 @@ def histo_bar_to_histo_oct(histo_bar, octave):
 def save_pianoroll_to_histo_oct(samples_per_bar, octave, name, path, histo_path):
     #    print(path + name)
     pianoroll = pickle.load(open(path + name, 'rb'))
-    histo_bar = pianoroll_to_histo_bar(pianoroll, samples_per_bar)
-    histo_oct = histo_bar_to_histo_oct(histo_bar, octave)
+    histo_bar = pianoroll_to_histogram_per_bar(pianoroll, samples_per_bar)
+    histo_oct = squash_octaves(histo_bar, octave)
     pickle.dump(histo_oct, open(histo_path + name, 'wb'))
 
 
-def midi_to_histo_oct(samples_per_bar, octave, fs, name, path, histo_path):
-    #    print(path + name)
-    pianoroll = get_pianoroll(name, path, fs)
-    histo_bar = pianoroll_to_histo_bar(pianoroll, samples_per_bar)
-    histo_oct = histo_bar_to_histo_oct(histo_bar, octave)
-    pickle.dump(histo_oct, open(histo_path + name + '.pickle', 'wb'))
+def midi_to_histo_oct(samples_per_bar: int, octave: int, fs: int, midi_file: Path, histogram_path: Path) -> None:
+    pianoroll = get_pianoroll(midi_file, fs)
+    histogram_per_bar = pianoroll_to_histogram_per_bar(pianoroll, samples_per_bar)
+    histogram_per_bar_squashed_octaves = squash_octaves(histogram_per_bar, octave)
+    pickle.dump(histogram_per_bar_squashed_octaves, open(histogram_path.joinpath(midi_file.name + '.pickle'), 'wb'))
 
 
 def save_pianoroll(name, path, target_path, fs):
@@ -171,8 +165,8 @@ def over_sample(mid):
     return p
 
 
-def save_note_ind(name, path, target_path, fs):
-    mid = pm.PrettyMIDI(path + name)
+def save_note_ind(midi_file: Path, target_path: Path, fs: int) -> None:
+    mid = pm.PrettyMIDI(str(midi_file))
     if settings.over_sample_midi_files:
         p = over_sample(mid)
     else:
@@ -182,12 +176,11 @@ def save_note_ind(name, path, target_path, fs):
             if p[i, j] != 0:
                 p[i, j] = 1
     n = pianoroll_to_note_index(p)
-    #    print(np.argwhere(p[:,:]))
-    pickle.dump(n, open(target_path + name + '.pickle', 'wb'))
+    pickle.dump(n, open(target_path.joinpath(midi_file.name + '.pickle'), 'wb'))
 
 
-def get_notes(name, path, fs):
-    mid = pm.PrettyMIDI(path + name)
+def get_notes(midi_file: Path, fs: int) -> np.ndarray:
+    mid = pm.PrettyMIDI(str(midi_file))
     if settings.over_sample_midi_files:
         p = over_sample(mid)
     else:
@@ -195,13 +188,12 @@ def get_notes(name, path, fs):
     return p
 
 
-def get_pianoroll(name, path, fs):
-    p = get_notes(name, path, fs)
+def get_pianoroll(midi_file: Path, fs: int) -> np.ndarray:
+    p = get_notes(midi_file, fs)
     for i, _ in enumerate(p):
         for j, _ in enumerate(p[i]):
             if p[i, j] != 0:
                 p[i, j] = 1
-    #    print(np.argwhere(p[:,:]))
     return p
 
 
@@ -287,8 +279,8 @@ def myround(x, base):
     return int(base * round(float(x) / base))
 
 
-def change_tempo(filename, data_path, target_path):
-    mid = mido.MidiFile(data_path + filename)
+def change_tempo_of_midi_file(midi_file: Path, target_path: Path) -> None:
+    mid = mido.MidiFile(midi_file)
     new_mid = mido.MidiFile()
     new_mid.ticks_per_beat = mid.ticks_per_beat
     for track in mid.tracks:
@@ -297,22 +289,15 @@ def change_tempo(filename, data_path, target_path):
             new_msg = msg.copy()
             if new_msg.type == 'set_tempo':
                 new_msg.tempo = 500000
-            #            if msg.type == 'note_on' or msg.type == 'note_off':
             if settings.discretize_time:
                 print(msg.time)
                 new_msg.time = myround(msg.time, base=mid.ticks_per_beat / (settings.discritezition / 4))
-            #                msg.time = myround(msg.time, base=mid.ticks_per_beat/(discritezition/4) )
             if settings.offset_time:
-                #                print('first:', time)
-
                 print((mid.ticks_per_beat / (settings.offset / 4)))
                 new_msg.time = int(msg.time + mid.ticks_per_beat / (settings.offset))
-            #                print('second:', new_time)
-            #                print('diff:',time )
-            #            msg.time = time
             new_track.append(new_msg)
         new_mid.tracks.append(new_track)
-    new_mid.save(target_path + filename)
+    new_mid.save(target_path.joinpath(midi_file.name))
 
 
 def change_tempo2(filename, data_path, target_path):

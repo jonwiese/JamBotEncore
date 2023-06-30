@@ -1,78 +1,15 @@
-shifted = True
-
-shift_folder = ''
-if shifted:
-    shift_folder = 'shifted/'
-
-# If you only want to process a subfolder like '/A' or '/A/A' for tests
-subfolder = '/'
-
-source_folder = 'data/original' + subfolder
-tempo_folder1 = 'data/' + 'tempo' + subfolder
-histo_folder1 = 'data/' + 'histo' + subfolder
-
-tempo_folder2 = 'data/' + shift_folder + 'tempo' + subfolder
-shifted_folder = 'data/' + shift_folder + 'shifted' + subfolder
-pickle_folder = 'data/' + shift_folder + 'pianoroll' + subfolder
-roll_folder = 'data/' + shift_folder + 'indroll' + subfolder
-histo_folder2 = 'data/' + shift_folder + 'histo' + subfolder
-chords_folder = 'data/' + shift_folder + 'chords' + subfolder
-chords_index_folder = 'data/' + shift_folder + 'chord_index' + subfolder
-song_histo_folder = 'data/' + shift_folder + 'song_histo' + subfolder
-
-# Test Paths:
-# source_folder = 'data/test'
-# tempo_folder = 'data/' + shift_folder + 'test_tempo'
-# pickle_folder = 'data/' + shift_folder + 'test_pianoroll'
-# roll_folder = 'data/' + shift_folder + 'test_indroll'
-# histo_folder = 'data/' + shift_folder + 'test_histo'
-# chords_folder = 'data/' + shift_folder + 'test_chords'
-# chords_index_folder = 'data/' + shift_folder + 'test_chord_index'
-# song_histo_folder = 'data/' + shift_folder + 'test_song_histo'
-# shifted_folder = 'data/' + shift_folder + 'test_shifted'
-
-
-dict_path = 'data/'
-chord_dict_name = 'chord_dict.pickle'
-index_dict_name = 'index_dict.pickle'
-
-if shifted:
-    chord_dict_name = 'chord_dict_shifted.pickle'
-    index_dict_name = 'index_dict_shifted.pickle'
-
-# Specifies the method how to add the chord information to the input vector
-# 'embed' uses the chord embedding of the chord model
-# 'onehot' encodes the chord as one hot vector
-# 'int' just appends the chord id to the input vector
-chord_embed_method = 'embed'
-
-# Adds the count of the beat as a feature to the input vector
-counter_feature = True
-counter_size = 0
-if counter_feature:
-    counter_size = 3
-
-# Appends also the next cord to the feature vector:
-next_chord_feature = True
-
-high_crop = 84  # 84
-low_crop = 24  # 24
-num_notes = 128
-new_num_notes = high_crop - low_crop
-chord_embedding_dim = 10
-
 # oversampling gives a better chord representation
 over_sample_midi_files = True
 over_sample_factor = 2
 
-one_hot_input = False
-collapse_octaves = True
 discretize_time = False
 offset_time = False
 discritezition = 8
 offset = 16
 
-# Some parameters to extract the pianorolls
+
+# Parameters to extract the pianorolls
+
 # sampling_frequency = 4 for 8th notes
 sampling_frequency = 4
 samples_per_bar = sampling_frequency * 2
@@ -84,10 +21,7 @@ NOTES_IN_A_CHORD = 3
 # Number of notes in a key
 NOTES_IN_A_KEY = 7
 # Chord Vocabulary size
-if shifted:
-    num_chords = 50
-else:
-    num_chords = 100
+num_chords = 50
 
 # unknown chord tag
 UNKNOWN_CHORD = '<unk>'
