@@ -4,6 +4,8 @@ import numpy as np
 from collections import Counter
 import _pickle as pickle
 
+from mido import KeySignatureError
+
 import settings
 from utils import midi_functions
 from preprocessing.midi_data_preprocessor_config import MidiDataPreprocessorConfig
@@ -12,13 +14,14 @@ from preprocessing.midi_data_preprocessor_config import MidiDataPreprocessorConf
 class MidiDataPreprocessor:
     def __init__(self, config: MidiDataPreprocessorConfig):
         self.config = config
-
+        self.intercepted_errors =\
+            (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError, AttributeError, KeySignatureError)
     def save_tempo_shifted_midi_files(self) -> None:
         self.config.tempo_shift_folder.mkdir(exist_ok=True)
         for midi_file in self.config.source_folder.rglob('*.mid'):
             try:
                 midi_functions.change_tempo_of_midi_file(midi_file, self.config.tempo_shift_folder)
-            except (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError, AttributeError) as e:
+            except self.intercepted_errors as e:
                 logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
 
     def save_note_histograms_per_bar(self) -> None:
@@ -28,7 +31,7 @@ class MidiDataPreprocessor:
                 midi_functions.midi_to_histo_oct(settings.samples_per_bar, settings.half_steps_in_octave,
                                                  settings.sampling_frequency, midi_file,
                                                  self.config.histogram_per_bar_folder)
-            except (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError) as e:
+            except self.intercepted_errors as e:
                 logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
 
     def save_note_histograms_per_song(self) -> None:
@@ -47,15 +50,16 @@ class MidiDataPreprocessor:
                 try:
                     midi_functions.shift_midi(
                         shift, song_name, self.config.tempo_shift_folder, self.config.key_shifted_folder)
-                except (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError) as e:
+                except self.intercepted_errors as e:
                     logging.log(logging.INFO, f'Unexpected error when processing {histogram_file}: {e}')
 
     def save_note_index_from_pianorolls(self) -> None:
         self.config.piano_roll_folder.mkdir(exist_ok=True)
         for midi_file in self.config.key_shifted_folder.rglob('*.mid'):
+            intercepted_errors = (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError)
             try:
                 midi_functions.save_note_ind(midi_file, self.config.piano_roll_folder, settings.sampling_frequency)
-            except (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError) as e:
+            except self.intercepted_errors as e:
                 logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
 
     def save_histo_oct_from_shifted_midi_folder(self) -> None:
@@ -65,7 +69,7 @@ class MidiDataPreprocessor:
                 midi_functions.midi_to_histo_oct(settings.samples_per_bar, settings.half_steps_in_octave,
                                                  settings.sampling_frequency, midi_file,
                                                  self.config.key_shifted_histogram_per_bar_folder)
-            except (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError) as e:
+            except self.intercepted_errors as e:
                 logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
 
     def save_chords_from_histogram(self) -> None:
