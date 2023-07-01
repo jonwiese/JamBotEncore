@@ -43,7 +43,7 @@ class MidiDataPreprocessor:
         self.config.key_shifted_folder.mkdir(exist_ok=True)
         for histogram_file in self.config.histogram_per_song_folder.rglob('*.pickle'):
             song_histogram = pickle.load(open(histogram_file, 'rb'))
-            key = midi_functions.song_histogram_to_key(song_histogram, settings.NOTES_IN_A_KEY)
+            key = midi_functions.song_histogram_to_key(song_histogram, settings.notes_per_key)
             shift = self.__get_shift(key)
             song_name = histogram_file.name.replace('.pickle', '')
             if shift != 'other':
@@ -75,13 +75,13 @@ class MidiDataPreprocessor:
     def save_chords_from_histogram(self) -> None:
         self.config.chords_folder.mkdir(exist_ok=True)
         for histogram_file in self.config.key_shifted_histogram_per_bar_folder.rglob('*.pickle'):
-            midi_functions.chord_histogram_to_chords(settings.NOTES_IN_A_CHORD, histogram_file, self.config.chords_folder)
+            midi_functions.chord_histogram_to_chords(settings.notes_per_chord, histogram_file, self.config.chords_folder)
 
     def make_chord_dict(self, num_chords: int) -> None:
         self.config.dict_path.mkdir(exist_ok=True)
         cntr = self.__count_chords(self.config.chords_folder, num_chords)
         chord_to_index = dict()
-        chord_to_index[settings.UNKNOWN_CHORD] = 0
+        chord_to_index[settings.unknown_chord_tag] = 0
         for chord, _ in cntr:
             chord_to_index[chord] = len(chord_to_index)
         index_to_chord = {v: k for k, v in chord_to_index.items()}

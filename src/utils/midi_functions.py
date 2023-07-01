@@ -22,7 +22,7 @@ def chords_to_index(chords: list, chord_to_index: dict) -> list:
         if chord in chord_to_index:
             chords_index.append(chord_to_index[chord])
         else:
-            chords_index.append(chord_to_index[settings.UNKNOWN_CHORD])
+            chords_index.append(chord_to_index[settings.unknown_chord_tag])
     return chords_index
 
 
@@ -155,9 +155,8 @@ def change_tempo_of_midi_file(midi_file: Path, target_path: Path) -> None:
                 new_msg.tempo = 500000
             if settings.discretize_time:
                 print(msg.time)
-                new_msg.time = myround(msg.time, base=mid.ticks_per_beat / (settings.discritezition / 4))
+                new_msg.time = myround(msg.time, base=mid.ticks_per_beat / (settings.discretization / 4))
             if settings.offset_time:
-                print((mid.ticks_per_beat / (settings.offset / 4)))
                 new_msg.time = int(msg.time + mid.ticks_per_beat / (settings.offset))
             new_track.append(new_msg)
         new_mid.tracks.append(new_track)

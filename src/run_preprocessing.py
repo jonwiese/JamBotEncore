@@ -5,7 +5,7 @@ import settings
 from preprocessing.midi_data_preprocessor_config import MidiDataPreprocessorConfig
 from preprocessing.midi_data_processor import MidiDataPreprocessor
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 
 
 def preprocess_midi_data():
@@ -50,8 +50,10 @@ def preprocess_midi_data():
 
     logging.info('7. Extract a chord for each bar from histogram data')
     midi_preprocesser.save_chords_from_histogram()
+
     logging.info('8. Make a chord dictionary that maps the 50 most used chords to an index')
     midi_preprocesser.make_chord_dict(settings.num_chords)
+
     logging.info('9. Create chord-index sequence for each song ')
     midi_preprocesser.save_chord_index_sequence()
 
