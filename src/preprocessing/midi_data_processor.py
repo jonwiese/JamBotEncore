@@ -22,7 +22,7 @@ class MidiDataPreprocessor:
             try:
                 midi_functions.change_tempo_of_midi_file(midi_file, self.config.tempo_shift_folder)
             except self.intercepted_errors as e:
-                logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
+                logging.debug(f'Unexpected error when processing {midi_file}: {e}')
 
     def save_note_histograms_per_bar(self) -> None:
         self.config.histogram_per_bar_folder.mkdir(exist_ok=True)
@@ -32,7 +32,7 @@ class MidiDataPreprocessor:
                                                  settings.sampling_frequency, midi_file,
                                                  self.config.histogram_per_bar_folder)
             except self.intercepted_errors as e:
-                logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
+                logging.debug(f'Unexpected error when processing {midi_file}: {e}')
 
     def save_note_histograms_per_song(self) -> None:
         self.config.histogram_per_song_folder.mkdir(exist_ok=True)
@@ -51,7 +51,7 @@ class MidiDataPreprocessor:
                     midi_functions.shift_midi(
                         shift, song_name, self.config.tempo_shift_folder, self.config.key_shifted_folder)
                 except self.intercepted_errors as e:
-                    logging.log(logging.INFO, f'Unexpected error when processing {histogram_file}: {e}')
+                    logging.debug(f'Unexpected error when processing {histogram_file}: {e}')
 
     def save_note_index_from_pianorolls(self) -> None:
         self.config.piano_roll_folder.mkdir(exist_ok=True)
@@ -60,7 +60,7 @@ class MidiDataPreprocessor:
             try:
                 midi_functions.save_note_ind(midi_file, self.config.piano_roll_folder, settings.sampling_frequency)
             except self.intercepted_errors as e:
-                logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
+                logging.debug(f'Unexpected error when processing {midi_file}: {e}')
 
     def save_histo_oct_from_shifted_midi_folder(self) -> None:
         self.config.key_shifted_histogram_per_bar_folder.mkdir(exist_ok=True)
@@ -70,7 +70,7 @@ class MidiDataPreprocessor:
                                                  settings.sampling_frequency, midi_file,
                                                  self.config.key_shifted_histogram_per_bar_folder)
             except self.intercepted_errors as e:
-                logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
+                logging.debug(f'Unexpected error when processing {midi_file}: {e}')
 
     def save_chords_from_histogram(self) -> None:
         self.config.chords_folder.mkdir(exist_ok=True)
