@@ -20,5 +20,17 @@ __JamBotEncore__ aims to:
 ## Modules
 ### Preprocessing
 
+The preprocessing module processed the raw midi data, so it can be used to train the LSTMs.\
+The preprocessing steps are:
+1. Shift the tempo of all the midi files to 120 bmp
+2. Create a histogram of which notes are played for each bar of every song
+3. Create a histogram of which notes are played for each song
+4. Shift all the notes of the midi files to the key of C major (or its relative A minor, which uses exactly the same notes)
+5. Create a note-index pianoroll-representation of all the key and tempo shifted midi files
+6. Create a histogram of which notes are played for each bar of every key shifted song
+7. Extract a chord for each bar from histogram data
+8. Make a chord dictionary that maps the 50 most used chords to an index
+9. Create chord-index sequence for each song 
+
 
 
