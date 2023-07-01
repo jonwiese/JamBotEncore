@@ -39,8 +39,8 @@ class MidiDataPreprocessor:
     def shift_midi_files(self) -> None:
         self.config.key_shifted_folder.mkdir(exist_ok=True)
         for histogram_file in self.config.histogram_per_song_folder.rglob('*.pickle'):
-            song_histo = pickle.load(open(histogram_file, 'rb'))
-            key = midi_functions.histo_to_key(song_histo, settings.NOTES_IN_A_KEY)
+            song_histogram = pickle.load(open(histogram_file, 'rb'))
+            key = midi_functions.song_histogram_to_key(song_histogram, settings.NOTES_IN_A_KEY)
             shift = self.__get_shift(key)
             song_name = histogram_file.name.replace('.pickle', '')
             if shift != 'other':
@@ -71,7 +71,7 @@ class MidiDataPreprocessor:
     def save_chords_from_histo(self) -> None:
         self.config.chords_folder.mkdir(exist_ok=True)
         for histogram_file in self.config.key_shifted_histogram_per_bar_folder.rglob('*.pickle'):
-            midi_functions.load_histo_save_chords(settings.NOTES_IN_A_CHORD, histogram_file, self.config.chords_folder)
+            midi_functions.chord_histogram_to_chords(settings.NOTES_IN_A_CHORD, histogram_file, self.config.chords_folder)
 
     def make_chord_dict(self, num_chords: int) -> None:
         self.config.dict_path.mkdir(exist_ok=True)
