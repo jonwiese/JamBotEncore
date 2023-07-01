@@ -19,5 +19,8 @@ notes_per_key = 7
 # Chord Vocabulary size
 num_chords = 50
 
+# for 120 bpm the midi tempo is 500'000
+midi_bpm = 120
+
 # unknown chord tag
 unknown_chord_tag = '<unk>'

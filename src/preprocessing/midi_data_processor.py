@@ -36,20 +36,20 @@ class MidiDataPreprocessor:
 
     def save_note_histograms_per_song(self) -> None:
         self.config.histogram_per_song_folder.mkdir(exist_ok=True)
-        for histogram_file in self.config.histogram_per_bar_folder.rglob('*.pickle'):
-            midi_functions.load_histo_save_song_histo(histogram_file, self.config.histogram_per_song_folder)
+        for histogram_per_bar_file in self.config.histogram_per_bar_folder.rglob('*.pickle'):
+            midi_functions.load_histo_save_song_histo(histogram_per_bar_file, self.config.histogram_per_song_folder)
 
     def save_shifted_midi_files(self) -> None:
         self.config.key_shifted_folder.mkdir(exist_ok=True)
         for histogram_file in self.config.histogram_per_song_folder.rglob('*.pickle'):
             song_histogram = pickle.load(open(histogram_file, 'rb'))
             key = midi_functions.song_histogram_to_key(song_histogram, settings.notes_per_key)
-            shift = self.__get_shift(key)
+            semitones_to_shift = self.__get_shift(key)
             song_name = histogram_file.name.replace('.pickle', '')
-            if shift != 'other':
+            if semitones_to_shift != 'other':
                 try:
                     midi_functions.shift_midi(
-                        shift, song_name, self.config.tempo_shift_folder, self.config.key_shifted_folder)
+                        semitones_to_shift, song_name, self.config.tempo_shift_folder, self.config.key_shifted_folder)
                 except self.intercepted_errors as e:
                     logging.debug(f'Unexpected error when processing {histogram_file}: {e}')
 
