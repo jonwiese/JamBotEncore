@@ -13,7 +13,7 @@ class MidiDataPreprocessor:
     def __init__(self, config: MidiDataPreprocessorConfig):
         self.config = config
 
-    def change_tempo_of_midi_files(self) -> None:
+    def save_tempo_shifted_midi_files(self) -> None:
         self.config.tempo_shift_folder.mkdir(exist_ok=True)
         for midi_file in self.config.source_folder.rglob('*.mid'):
             try:
@@ -21,7 +21,7 @@ class MidiDataPreprocessor:
             except (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError, AttributeError) as e:
                 logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
 
-    def make_note_histograms_per_bar(self) -> None:
+    def save_note_histograms_per_bar(self) -> None:
         self.config.histogram_per_bar_folder.mkdir(exist_ok=True)
         for midi_file in self.config.source_folder.rglob('*.mid'):
             try:
@@ -31,12 +31,12 @@ class MidiDataPreprocessor:
             except (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError) as e:
                 logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
 
-    def make_histograms_per_song(self) -> None:
+    def save_note_histograms_per_song(self) -> None:
         self.config.histogram_per_song_folder.mkdir(exist_ok=True)
         for histogram_file in self.config.histogram_per_bar_folder.rglob('*.pickle'):
             midi_functions.load_histo_save_song_histo(histogram_file, self.config.histogram_per_song_folder)
 
-    def shift_midi_files(self) -> None:
+    def save_shifted_midi_files(self) -> None:
         self.config.key_shifted_folder.mkdir(exist_ok=True)
         for histogram_file in self.config.histogram_per_song_folder.rglob('*.pickle'):
             song_histogram = pickle.load(open(histogram_file, 'rb'))
@@ -50,7 +50,7 @@ class MidiDataPreprocessor:
                 except (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError) as e:
                     logging.log(logging.INFO, f'Unexpected error when processing {histogram_file}: {e}')
 
-    def note_ind_folder(self) -> None:
+    def save_note_index_from_pianorolls(self) -> None:
         self.config.piano_roll_folder.mkdir(exist_ok=True)
         for midi_file in self.config.key_shifted_folder.rglob('*.mid'):
             try:
@@ -68,7 +68,7 @@ class MidiDataPreprocessor:
             except (ValueError, EOFError, IndexError, OSError, KeyError, ZeroDivisionError) as e:
                 logging.log(logging.INFO, f'Unexpected error when processing {midi_file}: {e}')
 
-    def save_chords_from_histo(self) -> None:
+    def save_chords_from_histogram(self) -> None:
         self.config.chords_folder.mkdir(exist_ok=True)
         for histogram_file in self.config.key_shifted_histogram_per_bar_folder.rglob('*.pickle'):
             midi_functions.chord_histogram_to_chords(settings.NOTES_IN_A_CHORD, histogram_file, self.config.chords_folder)
@@ -84,7 +84,7 @@ class MidiDataPreprocessor:
         pickle.dump(chord_to_index, open(self.config.dict_path.joinpath(self.config.chord_dict_name), 'wb'))
         pickle.dump(index_to_chord, open(self.config.dict_path.joinpath(self.config.index_dict_name), 'wb'))
 
-    def save_index_from_chords(self) -> None:
+    def save_chord_index_sequence(self) -> None:
         chord_to_index, _ = self.__get_chord_dict()
         self.config.chords_index_folder.mkdir(exist_ok=True)
         for chords_file in self.config.chords_folder.rglob('*.pickle'):

@@ -14,8 +14,8 @@ class MidiDataPreprocessorConfig:
         self.piano_roll_folder = piano_roll_folder
         self.histogram_per_song_folder = histogram_per_song_folder
         self.chords_folder = chords_folder
-        self.chords_index_folder = chords_index_folder
         self.dict_path = dict_path
+        self.chords_index_folder = chords_index_folder
         self.chord_dict_name = chord_dict_name
         self.index_dict_name = index_dict_name
         self.sampling_frequency = sampling_frequency

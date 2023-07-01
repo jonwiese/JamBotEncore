@@ -117,8 +117,8 @@ def save_note_ind(midi_file: Path, target_path: Path, fs: int) -> None:
         for j, _ in enumerate(pianoroll[i]):
             if pianoroll[i, j] != 0:
                 pianoroll[i, j] = 1
-    n = pianoroll_to_note_index(pianoroll)
-    pickle.dump(n, open(target_path.joinpath(midi_file.name + '.pickle'), 'wb'))
+    note_index_pianoroll = pianoroll_to_note_index(pianoroll)
+    pickle.dump(note_index_pianoroll, open(target_path.joinpath(midi_file.name + '.pickle'), 'wb'))
 
 
 def get_notes(midi_file: Path, fs: int) -> np.ndarray:

@@ -16,8 +16,8 @@ def preprocess_midi_data():
         piano_roll_folder=Path('../data/lmd_full/small_set/5_shifted_pianoroll'),
         key_shifted_histogram_per_bar_folder=Path('../data/lmd_full/small_set/6_shifted_histo'),
         chords_folder=Path('../data/lmd_full/small_set/7_shifted_chords'),
-        chords_index_folder=Path('../data/lmd_full/small_set/8_shifted_chords_index'),
-        dict_path=Path('../data/lmd_full/small_set/9_chord_dicts'),
+        dict_path=Path('../data/lmd_full/small_set/8_chord_dicts'),
+        chords_index_folder=Path('../data/lmd_full/small_set/9_shifted_chords_index'),
         chord_dict_name='shifted_chord_dict.pickle',
         index_dict_name='shifted_index_dict.pickle',
 
@@ -26,30 +26,30 @@ def preprocess_midi_data():
 
     midi_preprocesser = MidiDataPreprocessor(midi_preprocesser_config)
 
-    logging.log(logging.INFO, 'change tempo to 120 bpm')
-    midi_preprocesser.change_tempo_of_midi_files()
+    logging.log(logging.INFO, '1. Shift the tempo of all the midi files to 120 bmp')
+    midi_preprocesser.save_tempo_shifted_midi_files()
 
-    logging.log(logging.INFO, 'make note histogram for each bar')
-    midi_preprocesser.make_note_histograms_per_bar()
+    logging.log(logging.INFO, '2. Create a histogram of which notes are played for each bar of every song')
+    midi_preprocesser.save_note_histograms_per_bar()
 
-    logging.log(logging.INFO, 'make note histogram for whole song')
-    midi_preprocesser.make_histograms_per_song()
+    logging.log(logging.INFO, '3. Create a histogram of which notes are played for each song')
+    midi_preprocesser.save_note_histograms_per_song()
 
-    logging.log(logging.INFO, 'shifting midi files the key of C')
-    midi_preprocesser.shift_midi_files()
+    logging.log(logging.INFO, '4. Shift all the notes of the midi files to the key of C major')
+    midi_preprocesser.save_shifted_midi_files()
 
-    logging.log(logging.INFO, 'making note indexes')
-    midi_preprocesser.note_ind_folder()
+    logging.log(logging.INFO, '5. Create a pianoroll representation of tempo/key shifted midi files')
+    midi_preprocesser.save_note_index_from_pianorolls()
 
-    logging.log(logging.INFO, 'histogramming')
+    logging.log(logging.INFO, '6. Create a histogram of which notes are played for each bar of every key shifted song')
     midi_preprocesser.save_histo_oct_from_shifted_midi_folder()
 
-    logging.log(logging.INFO, 'extracting chords')
-    midi_preprocesser.save_chords_from_histo()
-    logging.log(logging.INFO, 'getting dictionary')
+    logging.log(logging.INFO, '7. Extract a chord for each bar from histogram data')
+    midi_preprocesser.save_chords_from_histogram()
+    logging.log(logging.INFO, '8. Make a chord dictionary that maps the 50 most used chords to an index')
     midi_preprocesser.make_chord_dict(settings.num_chords)
-    logging.log(logging.INFO, 'converting chords to index sequences')
-    midi_preprocesser.save_index_from_chords()
+    logging.log(logging.INFO, '9. Create chord-index sequence for each song ')
+    midi_preprocesser.save_chord_index_sequence()
 
 
 if __name__ == '__main__':
