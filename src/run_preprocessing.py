@@ -7,17 +7,19 @@ from preprocessing.midi_data_processor import MidiDataPreprocessor
 
 
 def preprocess_midi_data():
+    data_folder = Path('../data/2000_songs_data_set')
+
     midi_preprocesser_config = MidiDataPreprocessorConfig(
-        source_folder=Path('../data/lmd_full/small_set/0_original'),
-        tempo_shift_folder=Path('../data/lmd_full/small_set/1_tempo_shifted_to_120bpm'),
-        histogram_per_bar_folder=Path('../data/lmd_full/small_set/2_histogram_per_bar'),
-        histogram_per_song_folder=Path('../data/lmd_full/small_set/3_histogram_per_song'),
-        key_shifted_folder=Path('../data/lmd_full/small_set/4_key_shifted_to_c'),
-        piano_roll_folder=Path('../data/lmd_full/small_set/5_shifted_pianoroll'),
-        key_shifted_histogram_per_bar_folder=Path('../data/lmd_full/small_set/6_shifted_histo'),
-        chords_folder=Path('../data/lmd_full/small_set/7_shifted_chords'),
-        dict_path=Path('../data/lmd_full/small_set/8_chord_dicts'),
-        chords_index_folder=Path('../data/lmd_full/small_set/9_shifted_chords_index'),
+        source_folder=data_folder.joinpath('0_original'),
+        tempo_shift_folder=data_folder.joinpath('1_tempo_shifted_to_120bpm'),
+        histogram_per_bar_folder=data_folder.joinpath('2_histogram_per_bar'),
+        histogram_per_song_folder=data_folder.joinpath('3_histogram_per_song'),
+        key_shifted_folder=data_folder.joinpath('4_key_shifted_to_c'),
+        piano_roll_folder=data_folder.joinpath('5_shifted_pianoroll'),
+        key_shifted_histogram_per_bar_folder=data_folder.joinpath('6_shifted_histo'),
+        chords_folder=data_folder.joinpath('7_shifted_chords'),
+        dict_path=data_folder.joinpath('8_chord_dicts'),
+        chords_index_folder=data_folder.joinpath('9_shifted_chords_index'),
         chord_dict_name='shifted_chord_dict.pickle',
         index_dict_name='shifted_index_dict.pickle',
 
