@@ -20,7 +20,7 @@ __JamBotEncore__ aims to:
 ## Modules
 ### Preprocessing
 
-The preprocessing module processed the raw midi data, so it can be used to train the LSTMs.\
+This module processes the raw midi data, so it can be used to train the LSTMs.\
 The preprocessing steps are:
 1. Shift the tempo of all the midi files to 120 bmp
 2. Create a histogram of which notes are played for each bar of every song
@@ -33,4 +33,10 @@ The preprocessing steps are:
 9. Create chord-index sequence for each song 
 
 
+### Training
 
+To do
+
+### Generation
+
+To do
