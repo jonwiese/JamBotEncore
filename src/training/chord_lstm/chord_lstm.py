@@ -1,7 +1,6 @@
-import torch
 import torch.nn as nn
 
-from training import settings
+from training.chord_lstm import settings
 
 
 class ChordLstm(nn.Module):
